@@ -1,1 +1,1 @@
-# django-rest
+# Django REST API practices
