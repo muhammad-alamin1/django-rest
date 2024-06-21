@@ -42,7 +42,7 @@ class Information(APIView):
         try:
             bruass_instance = Bruass.objects.get(id=pk)
         except Bruass.DoesNotExist:
-            Response({'error': 'Bruass instance not found.'}, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Bruass instance not found.'}, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
         
         serializer = BruassSerializers(bruass_instance, data=request.data, partial=True)
         if serializer.is_valid():
