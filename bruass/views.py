@@ -28,10 +28,26 @@ class Information(APIView):
         except Bruass.DoesNotExist:
             raise Http404
     
+    
     # post method
     def post(self, request):
         serializer = BruassSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"msg": "Successfully inserted data.!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    # put method for full update
+    def put(self, request, pk=None):
+        try:
+            bruass_instance = Bruass.objects.get(id=pk)
+        except Bruass.DoesNotExist:
+            raise Http404
+        
+        serializer = BruassSerializers(bruass_instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Successfully Updated data.!'}, content_type='application/json', status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
