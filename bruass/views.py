@@ -1,7 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from . models import Bruass
@@ -26,7 +25,7 @@ class Information(APIView):
                 
                 return Response(teacher_serializer_data.data)
         except Bruass.DoesNotExist:
-            raise Http404
+            Response({'error': 'Bruass instance not found.'}, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
     
     
     # post method
@@ -38,12 +37,12 @@ class Information(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-    # put method for full update
+    # put method for full update or partial
     def put(self, request, pk=None):
         try:
             bruass_instance = Bruass.objects.get(id=pk)
         except Bruass.DoesNotExist:
-            raise Http404
+            Response({'error': 'Bruass instance not found.'}, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
         
         serializer = BruassSerializers(bruass_instance, data=request.data, partial=True)
         if serializer.is_valid():
@@ -51,3 +50,15 @@ class Information(APIView):
             
             return Response({'msg': 'Successfully Updated data.!'}, content_type='application/json', status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+    # del method for delete single item
+    def delete(self, request, pk=None):
+        try:
+            bruass_instance = Bruass.objects.get(id=pk)
+            bruass_instance.delete()
+            
+            return Response({'msg': 'Successfully Deleted data.'}, content_type='application/json', status=status.HTTP_204_NO_CONTENT)
+        except Bruass.DoesNotExist:
+            return Response({'error': 'Bruass instance not found.'}, content_type='application/json', status=status.HTTP_404_NOT_FOUND)
+        
